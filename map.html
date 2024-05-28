@@ -1,170 +1,192 @@
-
 <!DOCTYPE html>
 <html data-theme="dark">
+
 <head>
     <title>Lobster</title>
     <meta charset="utf-16">
-    <meta name="viewport" content="width=device-width"/>
+    <meta name="viewport" content="width=device-width" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" rel="stylesheet" />
 
-<style>
-* { margin:0; padding: 0 }
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
 
-html, body,
-#map, #wrapper {
-    position: relative;
-  height: 100%;
-  width: 100%;
-  background-color: #d5dbdd;
-  z-index: 1;
-}
-#toggle {
-    z-index: 100;
-    position: absolute;
-    right: 10px;
-    top: 10px;
+        html,
+        body,
+        #map,
+        #wrapper {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            background-color: #d5dbdd;
+            z-index: 1;
+        }
 
-    padding: 6px 10px 6px 6px;
-    color: #333;
-    background: #fff;    
-    border: 2px solid rgba(0, 0, 0, 0.2);
-    background-clip: padding-box; 
-    border-radius: 5px;  
+        #toggle {
+            z-index: 100;
+            position: absolute;
+            right: 10px;
+            top: 10px;
 
-    font: 12px / 1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
-}
-#toggle > div {
-    align-items: center;
-    display: flex;    
-    margin-bottom: 5px;
-}
-#toggle > div:last-child {
-    margin-bottom: 0;
-}
+            padding: 6px 10px 6px 6px;
+            color: #333;
+            background: #fff;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            background-clip: padding-box;
+            border-radius: 5px;
 
-#toggle input {
-    margin-right: 5px;
-}
+            font: 12px / 1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
 
-</style>
+        #toggle>div {
+            align-items: center;
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        #toggle>div:last-child {
+            margin-bottom: 0;
+        }
+
+        #toggle input {
+            margin-right: 5px;
+        }
+
+        .proposal-box {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 48px;
+            background: white;
+            z-index: 2;
+            text-align: center;
+            line-height: 48px;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="wrapper">
-    <div id="map">
-    
-    </div>
-    <div id="toggle">
-        <div>
-            <input id="group_a" type="checkbox" checked=""><label for="group_a">Boulder</label>
+    <div id="wrapper">
+        <div id="map">
+
         </div>
-        <div>
-            <input id="group_b" type="checkbox" checked=""><label for="group_b">Hallen</label>
+        <div id="toggle">
+            <div>
+                <input id="group_a" type="checkbox" checked=""><label for="group_a">Boulder</label>
+            </div>
+            <div>
+                <input id="group_b" type="checkbox" checked=""><label for="group_b">Hallen</label>
+            </div>
+        </div>
+        <div class="proposal-box">
         </div>
     </div>
-</div>
 
 
-<script type="text/javascript">
-    const 
-        HallCoords = [
-            [52.548763, 13.3789677, true, 'Magic Mountain', 'https://www.google.com/maps/place/Magic+Mountain+(Climbing+%2F+Bouldering)/@52.548763,13.3789677,17z/data=!3m1!4b1!4m6!3m5!1s0x47a85226d4871e11:0x1fc4a1d9144a6c8f!8m2!3d52.548763!4d13.381548!16s%2Fg%2F1vl5ftfb?entry=ttu', '16m 2400m2'],
-            [52.5296781,13.3626526, true, 'DAV Hauptquatier', 'https://www.google.com/maps/search/dav-kletterzentrum/@52.5296781,13.3626526,16.95z?entry=ttu', '15m 2110m2'],
-            [52.5071381,13.4495884, true, 'Der Kegel', 'https://www.google.com/maps/place/Der+Kegel+Kletterturm/@52.5071381,13.4495884,16z/data=!3m2!4b1!5s0x47a84e597f80b275:0x4483e088bc01e476!4m6!3m5!1s0x47a84e59a70cd9b1:0x5a0ec337f10a63b1!8m2!3d52.5071382!4d13.4544647!16s%2Fg%2F1tf06pwc?entry=ttu', '18m 1050m2'],
-            [52.5036269,13.3816543, true, 'Basement Boulderstudio', 'https://www.google.com/maps/place/urban+apes+Basement+Berlin/@52.5036269,13.3816543,17z/data=!3m2!4b1!5s0x47a84fb90cda0ce9:0xd37a1a5fb9c69fc2!4m6!3m5!1s0x47a8514a8768e7cb:0xbe7794a333868614!8m2!3d52.5036269!4d13.3842346!16s%2Fg%2F11h5mfztk4?entry=ttu', '?m 950m2'],
-            [52.4951398,13.4238189, false, 'Boulderklub Kreuzberg', 'https://www.google.com/maps/place/Boulderklub+Kreuzberg+Boulderhalle/@52.4951398,13.4238189,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84fb51b0859e7:0x8411fe7f2037def7!8m2!3d52.4951399!4d13.4286952!16s%2Fg%2F11b7sycn37?entry=ttu', '?m 900m2'],
-            [52.5636824,13.4073265, true, 'Berta Block', 'https://www.google.com/maps/place/Berta+Block/@52.5636824,13.4073265,17z/data=!3m2!4b1!5s0x47a85212cc013de1:0x3e64e383199e2fc8!4m6!3m5!1s0x47a85212db28b623:0xf0539005fd4c4e5b!8m2!3d52.5636824!4d13.4099068!16s%2Fg%2F12mkt1fhr?entry=ttu', '?m 2000m2'],
-            [52.546629,13.4179127, false, 'SportjugendZentrum Lychi', 'https://www.google.com/maps/place/Sport+Jugend+Zentrum+(SJZ)+Lychi/@52.546629,13.4179127,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84dff4d32db4d:0x5076a90439230c12!8m2!3d52.546629!4d13.420493!16s%2Fg%2F1tdcfdbg?entry=ttu', '7m ?m2'],
-            [52.4912363,13.4858033, false, 'Ostbloc', 'https://www.google.com/maps/place/Ostbloc+Boulderhalle/@52.4912363,13.4858033,17z/data=!3m2!4b1!5s0x47a84edfa28486cf:0x62f58b7b330babb8!4m6!3m5!1s0x47a84dd89692be1f:0x56575312d1d1afd6!8m2!3d52.4912363!4d13.4883836!16s%2Fg%2F1tdzkllw?entry=ttu', '?m 1450m2'],
-            [52.4794076,13.4488516, false, 'Bouldergarten', 'https://www.google.com/maps/place/Bouldergarten/@52.4794076,13.4488516,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84f09a1f999e1:0x3d315bb02af70ff6!8m2!3d52.4794076!4d13.4514319!16s%2Fg%2F11c53sg9tc?entry=ttu', '?m ?m2'],
-            [52.4818531,13.3606162, true, 'Bright Site Boulderhalle', 'https://www.google.com/maps/place/Bright+Site+-+Berlin+Boulder+Project/@52.4818531,13.3606162,17z/data=!3m1!4b1!4m6!3m5!1s0x47a850161bb22175:0x8d0ccdd762dc6273!8m2!3d52.4818532!4d13.3654925!16s%2Fg%2F1q65f8sl5?entry=ttu', '?m ?m2'],
-            [52.4399135,13.3770503, false, 'Südbloc', 'https://www.google.com/maps/place/S%C3%BCdbloc+Boulderhalle/@52.4399135,13.3770503,17z/data=!3m1!4b1!4m6!3m5!1s0x47a845485965d3af:0x11dd3b823eb802de!8m2!3d52.4399135!4d13.3796306!16s%2Fg%2F11b6ryvg_l?entry=ttu', '4m 1000m2'],
-            [52.4272035,13.3671815, false, 'South Rock', 'https://www.google.com/maps/place/South+Rock+Kletterhalle/@52.4272035,13.3671815,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84531e4a87191:0x27796961432fe5eb!8m2!3d52.4272035!4d13.3697618!16s%2Fg%2F11c4kqzgwg?entry=ttu', '17m 2500m2'],
-            [52.454092,13.2652207, false, 'DAV Kletterhalle Hüttenweg des AlpinClub Berlin', 'https://www.google.com/maps/place/Kletterhalle+H%C3%BCttenweg+des+AlpinClub+Berlin+(DAV)/@52.4671927,13.2467407,14z/data=!4m10!1m2!2m1!1sKletterhalle%2BH%25C3%25BCttenweg%2Bdes%2BAlpinClub%2BBerlin%2B(DAV)!3m6!1s0x47a85a173ed6810f:0xda89c8cc5695a5e2!8m2!3d52.454092!4d13.267801!15sCjVLbGV0dGVyaGFsbGUrSCVDMyVCQ3R0ZSB3ZWcrZGVzK0FscGluQ2x1YitCZXJsaW4oREFWKSIDiAEBkgEUcm9ja19jbGltYmluZ19jZW50cmXgAQA!16s%2Fg%2F1tp2zdyd?entry=ttu', '6m 300m2'],
-            [52.4866176,13.3133476, true, 'BoulderWorx', 'https://www.google.com/maps/place/Boulderworx/@52.4866176,13.3133476,16z/data=!3m2!4b1!5s0x47a8508cc0df97b5:0xc63afddae83e22ab!4m6!3m5!1s0x47a8508cc6ba5951:0x3654394b425f3eb!8m2!3d52.4866177!4d13.3182239!16s%2Fg%2F1tt1rqrj?entry=ttu', '4m 710m2'],
-            [52.5421933,13.2184645, false, 'CliffHanger Boulderhalle', 'https://www.google.com/maps/place/Cliffhanger+Boulderlounge/@52.5421933,13.2184645,17z/data=!3m1!4b1!4m6!3m5!1s0x47a8565d87d1b1af:0x31ad5ceae5007536!8m2!3d52.5421933!4d13.2210448!16s%2Fg%2F11cjj9nqt8?entry=ttu', '?m 100m2'],
-            [52.8380363,12.6901336, false, 'Neuruppiner Wasserturm', 'https://www.google.com/maps/place/Kletterzentrum+Neuruppin/@52.8380363,12.6901336,11z/data=!3m1!5s0x47a93dacd413b5a5:0xce2b87dccd76e312!4m10!1m2!2m1!1sNeuruppiner+Wasserturm!3m6!1s0x47a93c532b61dbfd:0xe4cc5c052eae8738!8m2!3d52.9240464!4d12.7963046!15sChZOZXVydXBwaW5lciBXYXNzZXJ0dXJtkgENcm9ja19jbGltYmluZ-ABAA!16s%2Fg%2F11cn9mzdtk?entry=ttu', '18m 200m2'],
-            [52.8449263,13.7638507, false, 'bloc.48 Boulderhalle', 'https://www.google.com/maps/place/bloc.48+Boulderhalle+Eberswalde/@52.8449263,13.7638507,17z/data=!3m1!4b1!4m6!3m5!1s0x47a9b992156b15cb:0xd494eebe7128d687!8m2!3d52.8449264!4d13.768727!16s%2Fg%2F11h2lpbg0c?entry=ttu', '?m 1000m2'],
-            [52.7509823,13.2572038, false, 'TURM ErlebnisCity', 'https://www.google.com/maps/place/TURM+ErlebnisCity/@52.7509823,13.2572038,3a,75y,90t/data=!3m8!1e2!3m6!1sAF1QipOTCF8TcEyd4lGwFrGHw5arqXNzRC7953wPEmJi!2e10!3e12!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipOTCF8TcEyd4lGwFrGHw5arqXNzRC7953wPEmJi%3Dw129-h86-k-no!7i5760!8i3840!4m7!3m6!1s0x47a9075afc41a55d:0xd40bb2a2f3183c37!8m2!3d52.750193!4d13.2577844!10e5!16s%2Fg%2F1td1th1j?entry=ttu', '15m 296m2'],
-            [52.3919367,12.9261329, false, 'Boulder-Werft - Boulderhalle', 'https://www.google.com/maps/place/Boulder-Werft+-+Boulderhalle,+Bewegungstherapie,+SUP+Verleih+in+Werder+(Havel)/@52.3919367,12.9261329,17z/data=!3m2!4b1!5s0x47a8f3bab8e5c6f3:0xb048dfd4031cfbfb!4m6!3m5!1s0x47a8f3180c5d60db:0xc9d7eda60fa2b65a!8m2!3d52.3919368!4d12.9310092!16s%2Fg%2F11rvcnkq95?entry=ttu', '?m ?m2'],
-            [52.4073448,12.9744547, false, 'Kletter- und Boulderhalle Universität Potsdam', 'https://www.google.com/maps/place/Kletter-+und+Boulderhalle+Universit%C3%A4t+Potsdam/@52.4073448,12.9744547,17z/data=!3m1!4b1!4m6!3m5!1s0x47a8f39a62eaba0f:0x7bfd585e9f6643a4!8m2!3d52.4073448!4d12.9762902!16s%2Fg%2F11rpq7nmdh?entry=ttu', '5m 250m2'],
-            [52.3846185,13.1014852, false, '7a+ Boulderhalle Potsdam', 'https://www.google.com/maps/place/7a%2B+Boulderhalle+Potsdam/@52.3846185,13.1014852,17z/data=!3m1!4b1!4m6!3m5!1s0x47a85fb7d309f677:0x29fb2361c69553c5!8m2!3d52.3846185!4d13.1040655!16s%2Fg%2F11g1kn0v28?entry=ttu', '4m ?m2'],
-            [52.3202484,13.6276344, true, 'Die Gämse – Boulderhalle Wildau', 'https://www.google.com/maps/place/Die+G%C3%A4mse+%E2%80%93+Boulderhalle+Wildau/@52.3202484,13.6276344,17z/data=!3m1!4b1!4m6!3m5!1s0x47a83ee7ff030b73:0x1243a350c1d19e79!8m2!3d52.3202485!4d13.6325107!16s%2Fg%2F11by_fglkq?entry=ttu', '?m 440m2'],
+    <script type="text/javascript">
+        const
+            HallCoords = [
+                [52.548763, 13.3789677, true, 'Magic Mountain', 'https://www.google.com/maps/place/Magic+Mountain+(Climbing+%2F+Bouldering)/@52.548763,13.3789677,17z/data=!3m1!4b1!4m6!3m5!1s0x47a85226d4871e11:0x1fc4a1d9144a6c8f!8m2!3d52.548763!4d13.381548!16s%2Fg%2F1vl5ftfb?entry=ttu', '16m 2400m2'],
+                [52.5296781, 13.3626526, true, 'DAV Hauptquatier', 'https://www.google.com/maps/search/dav-kletterzentrum/@52.5296781,13.3626526,16.95z?entry=ttu', '15m 2110m2'],
+                [52.5071381, 13.4495884, true, 'Der Kegel', 'https://www.google.com/maps/place/Der+Kegel+Kletterturm/@52.5071381,13.4495884,16z/data=!3m2!4b1!5s0x47a84e597f80b275:0x4483e088bc01e476!4m6!3m5!1s0x47a84e59a70cd9b1:0x5a0ec337f10a63b1!8m2!3d52.5071382!4d13.4544647!16s%2Fg%2F1tf06pwc?entry=ttu', '18m 1050m2'],
+                [52.5036269, 13.3816543, true, 'Basement Boulderstudio', 'https://www.google.com/maps/place/urban+apes+Basement+Berlin/@52.5036269,13.3816543,17z/data=!3m2!4b1!5s0x47a84fb90cda0ce9:0xd37a1a5fb9c69fc2!4m6!3m5!1s0x47a8514a8768e7cb:0xbe7794a333868614!8m2!3d52.5036269!4d13.3842346!16s%2Fg%2F11h5mfztk4?entry=ttu', '?m 950m2'],
+                [52.4951398, 13.4238189, false, 'Boulderklub Kreuzberg', 'https://www.google.com/maps/place/Boulderklub+Kreuzberg+Boulderhalle/@52.4951398,13.4238189,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84fb51b0859e7:0x8411fe7f2037def7!8m2!3d52.4951399!4d13.4286952!16s%2Fg%2F11b7sycn37?entry=ttu', '?m 900m2'],
+                [52.5636824, 13.4073265, true, 'Berta Block', 'https://www.google.com/maps/place/Berta+Block/@52.5636824,13.4073265,17z/data=!3m2!4b1!5s0x47a85212cc013de1:0x3e64e383199e2fc8!4m6!3m5!1s0x47a85212db28b623:0xf0539005fd4c4e5b!8m2!3d52.5636824!4d13.4099068!16s%2Fg%2F12mkt1fhr?entry=ttu', '?m 2000m2'],
+                [52.546629, 13.4179127, false, 'SportjugendZentrum Lychi', 'https://www.google.com/maps/place/Sport+Jugend+Zentrum+(SJZ)+Lychi/@52.546629,13.4179127,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84dff4d32db4d:0x5076a90439230c12!8m2!3d52.546629!4d13.420493!16s%2Fg%2F1tdcfdbg?entry=ttu', '7m ?m2'],
+                [52.4912363, 13.4858033, false, 'Ostbloc', 'https://www.google.com/maps/place/Ostbloc+Boulderhalle/@52.4912363,13.4858033,17z/data=!3m2!4b1!5s0x47a84edfa28486cf:0x62f58b7b330babb8!4m6!3m5!1s0x47a84dd89692be1f:0x56575312d1d1afd6!8m2!3d52.4912363!4d13.4883836!16s%2Fg%2F1tdzkllw?entry=ttu', '?m 1450m2'],
+                [52.4794076, 13.4488516, false, 'Bouldergarten', 'https://www.google.com/maps/place/Bouldergarten/@52.4794076,13.4488516,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84f09a1f999e1:0x3d315bb02af70ff6!8m2!3d52.4794076!4d13.4514319!16s%2Fg%2F11c53sg9tc?entry=ttu', '?m ?m2'],
+                [52.4818531, 13.3606162, true, 'Bright Site Boulderhalle', 'https://www.google.com/maps/place/Bright+Site+-+Berlin+Boulder+Project/@52.4818531,13.3606162,17z/data=!3m1!4b1!4m6!3m5!1s0x47a850161bb22175:0x8d0ccdd762dc6273!8m2!3d52.4818532!4d13.3654925!16s%2Fg%2F1q65f8sl5?entry=ttu', '?m ?m2'],
+                [52.4399135, 13.3770503, false, 'Südbloc', 'https://www.google.com/maps/place/S%C3%BCdbloc+Boulderhalle/@52.4399135,13.3770503,17z/data=!3m1!4b1!4m6!3m5!1s0x47a845485965d3af:0x11dd3b823eb802de!8m2!3d52.4399135!4d13.3796306!16s%2Fg%2F11b6ryvg_l?entry=ttu', '4m 1000m2'],
+                [52.4272035, 13.3671815, false, 'South Rock', 'https://www.google.com/maps/place/South+Rock+Kletterhalle/@52.4272035,13.3671815,17z/data=!3m1!4b1!4m6!3m5!1s0x47a84531e4a87191:0x27796961432fe5eb!8m2!3d52.4272035!4d13.3697618!16s%2Fg%2F11c4kqzgwg?entry=ttu', '17m 2500m2'],
+                [52.454092, 13.2652207, false, 'DAV Kletterhalle Hüttenweg des AlpinClub Berlin', 'https://www.google.com/maps/place/Kletterhalle+H%C3%BCttenweg+des+AlpinClub+Berlin+(DAV)/@52.4671927,13.2467407,14z/data=!4m10!1m2!2m1!1sKletterhalle%2BH%25C3%25BCttenweg%2Bdes%2BAlpinClub%2BBerlin%2B(DAV)!3m6!1s0x47a85a173ed6810f:0xda89c8cc5695a5e2!8m2!3d52.454092!4d13.267801!15sCjVLbGV0dGVyaGFsbGUrSCVDMyVCQ3R0ZSB3ZWcrZGVzK0FscGluQ2x1YitCZXJsaW4oREFWKSIDiAEBkgEUcm9ja19jbGltYmluZ19jZW50cmXgAQA!16s%2Fg%2F1tp2zdyd?entry=ttu', '6m 300m2'],
+                [52.4866176, 13.3133476, true, 'BoulderWorx', 'https://www.google.com/maps/place/Boulderworx/@52.4866176,13.3133476,16z/data=!3m2!4b1!5s0x47a8508cc0df97b5:0xc63afddae83e22ab!4m6!3m5!1s0x47a8508cc6ba5951:0x3654394b425f3eb!8m2!3d52.4866177!4d13.3182239!16s%2Fg%2F1tt1rqrj?entry=ttu', '4m 710m2'],
+                [52.5421933, 13.2184645, false, 'CliffHanger Boulderhalle', 'https://www.google.com/maps/place/Cliffhanger+Boulderlounge/@52.5421933,13.2184645,17z/data=!3m1!4b1!4m6!3m5!1s0x47a8565d87d1b1af:0x31ad5ceae5007536!8m2!3d52.5421933!4d13.2210448!16s%2Fg%2F11cjj9nqt8?entry=ttu', '?m 100m2'],
+                [52.8380363, 12.6901336, false, 'Neuruppiner Wasserturm', 'https://www.google.com/maps/place/Kletterzentrum+Neuruppin/@52.8380363,12.6901336,11z/data=!3m1!5s0x47a93dacd413b5a5:0xce2b87dccd76e312!4m10!1m2!2m1!1sNeuruppiner+Wasserturm!3m6!1s0x47a93c532b61dbfd:0xe4cc5c052eae8738!8m2!3d52.9240464!4d12.7963046!15sChZOZXVydXBwaW5lciBXYXNzZXJ0dXJtkgENcm9ja19jbGltYmluZ-ABAA!16s%2Fg%2F11cn9mzdtk?entry=ttu', '18m 200m2'],
+                [52.8449263, 13.7638507, false, 'bloc.48 Boulderhalle', 'https://www.google.com/maps/place/bloc.48+Boulderhalle+Eberswalde/@52.8449263,13.7638507,17z/data=!3m1!4b1!4m6!3m5!1s0x47a9b992156b15cb:0xd494eebe7128d687!8m2!3d52.8449264!4d13.768727!16s%2Fg%2F11h2lpbg0c?entry=ttu', '?m 1000m2'],
+                [52.7509823, 13.2572038, false, 'TURM ErlebnisCity', 'https://www.google.com/maps/place/TURM+ErlebnisCity/@52.7509823,13.2572038,3a,75y,90t/data=!3m8!1e2!3m6!1sAF1QipOTCF8TcEyd4lGwFrGHw5arqXNzRC7953wPEmJi!2e10!3e12!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipOTCF8TcEyd4lGwFrGHw5arqXNzRC7953wPEmJi%3Dw129-h86-k-no!7i5760!8i3840!4m7!3m6!1s0x47a9075afc41a55d:0xd40bb2a2f3183c37!8m2!3d52.750193!4d13.2577844!10e5!16s%2Fg%2F1td1th1j?entry=ttu', '15m 296m2'],
+                [52.3919367, 12.9261329, false, 'Boulder-Werft - Boulderhalle', 'https://www.google.com/maps/place/Boulder-Werft+-+Boulderhalle,+Bewegungstherapie,+SUP+Verleih+in+Werder+(Havel)/@52.3919367,12.9261329,17z/data=!3m2!4b1!5s0x47a8f3bab8e5c6f3:0xb048dfd4031cfbfb!4m6!3m5!1s0x47a8f3180c5d60db:0xc9d7eda60fa2b65a!8m2!3d52.3919368!4d12.9310092!16s%2Fg%2F11rvcnkq95?entry=ttu', '?m ?m2'],
+                [52.4073448, 12.9744547, false, 'Kletter- und Boulderhalle Universität Potsdam', 'https://www.google.com/maps/place/Kletter-+und+Boulderhalle+Universit%C3%A4t+Potsdam/@52.4073448,12.9744547,17z/data=!3m1!4b1!4m6!3m5!1s0x47a8f39a62eaba0f:0x7bfd585e9f6643a4!8m2!3d52.4073448!4d12.9762902!16s%2Fg%2F11rpq7nmdh?entry=ttu', '5m 250m2'],
+                [52.3846185, 13.1014852, false, '7a+ Boulderhalle Potsdam', 'https://www.google.com/maps/place/7a%2B+Boulderhalle+Potsdam/@52.3846185,13.1014852,17z/data=!3m1!4b1!4m6!3m5!1s0x47a85fb7d309f677:0x29fb2361c69553c5!8m2!3d52.3846185!4d13.1040655!16s%2Fg%2F11g1kn0v28?entry=ttu', '4m ?m2'],
+                [52.3202484, 13.6276344, true, 'Die Gämse – Boulderhalle Wildau', 'https://www.google.com/maps/place/Die+G%C3%A4mse+%E2%80%93+Boulderhalle+Wildau/@52.3202484,13.6276344,17z/data=!3m1!4b1!4m6!3m5!1s0x47a83ee7ff030b73:0x1243a350c1d19e79!8m2!3d52.3202485!4d13.6325107!16s%2Fg%2F11by_fglkq?entry=ttu', '?m 440m2'],
 
-            [51.7513984,14.3373382, true, 'Klunker Boulderhalle Cottbus', 'https://www.google.com/maps/place/Klunker+Boulderhalle+Cottbus/@51.7513984,14.3373382,17z/data=!3m1!4b1!4m6!3m5!1s0x470875fca251dd55:0x71b3bde677848997!8m2!3d51.7513984!4d14.3399185!16s%2Fg%2F11frx3b4t0?entry=ttu', '?m ?m2'],
-            [53.4837359,-2.2482633, true, 'Rock Over Climbing', 'https://www.google.com/maps/place/Rock+Over+Climbing/@53.4837359,-2.2482633,14.98z/data=!4m10!1m2!2m1!1sManchester+climbing!3m6!1s0x487bb1cf28dbbca3:0x8134851bab66abf1!8m2!3d53.4914426!4d-2.2452413!15sChNNYW5jaGVzdGVyIGNsaW1iaW5nWhUiE21hbmNoZXN0ZXIgY2xpbWJpbmeSARRyb2NrX2NsaW1iaW5nX2NlbnRyZZoBJENoZERTVWhOTUc5blMwVkpRMEZuU1VOcGNYRjZaRzlSUlJBQuABAA!16s%2Fg%2F113jvnw1g?entry=ttu', '?m ?m2'],
-            [53.4692365,-2.2039317, true, 'Parthian Climbing', 'https://www.google.com/maps/place/Parthian+Climbing/@53.4692365,-2.2039317,15z/data=!4m10!1m2!2m1!1sManchester+climbing!3m6!1s0x487bb170cfcfdcf9:0x42e68e10a84bcb27!8m2!3d53.469464!4d-2.204217!15sChNNYW5jaGVzdGVyIGNsaW1iaW5nWhUiE21hbmNoZXN0ZXIgY2xpbWJpbmeSARRyb2NrX2NsaW1iaW5nX2NlbnRyZZoBI0NoWkRTVWhOTUc5blMwVkpRMEZuU1VOMFp6UnhUbUpSRUFF4AEA!16s%2Fg%2F1v8k_4ky?entry=ttu', '?m ?m2'],
-            [48.6844975,6.2032792, true, 'Bloc Session Nancy', 'https://www.google.com/maps/place/Bloc+Session+Nancy/@48.6844975,6.2032792,14z/data=!4m10!1m2!2m1!1snancy+climbing+hall!3m6!1s0x479499778d16fbeb:0x41d56ec246140d07!8m2!3d48.6843944!4d6.2027239!15sChNuYW5jeSBjbGltYmluZyBoYWxskgEUcm9ja19jbGltYmluZ19jZW50cmXgAQA!16s%2Fg%2F11spqs0lqn?entry=ttu', '?m ?m2'],
-            [52.3528372,14.5505778, true, 'DAV Sektion Frankfurt (Oder)', 'https://www.google.com/maps/place/Deutscher+Alpenverein+Sektion+Frankfurt+(Oder)/@52.3528372,14.5505778,19.9z/data=!4m6!3m5!1s0x4707986524acc3b1:0x5c02cbce514c4d55!8m2!3d52.3529459!4d14.550721!16s%2Fg%2F11b6x8352n?entry=ttu', '?m ?m2']
-        ];
-</script>
+                [51.7513984, 14.3373382, true, 'Klunker Boulderhalle Cottbus', 'https://www.google.com/maps/place/Klunker+Boulderhalle+Cottbus/@51.7513984,14.3373382,17z/data=!3m1!4b1!4m6!3m5!1s0x470875fca251dd55:0x71b3bde677848997!8m2!3d51.7513984!4d14.3399185!16s%2Fg%2F11frx3b4t0?entry=ttu', '?m ?m2'],
+                [53.4837359, -2.2482633, true, 'Rock Over Climbing', 'https://www.google.com/maps/place/Rock+Over+Climbing/@53.4837359,-2.2482633,14.98z/data=!4m10!1m2!2m1!1sManchester+climbing!3m6!1s0x487bb1cf28dbbca3:0x8134851bab66abf1!8m2!3d53.4914426!4d-2.2452413!15sChNNYW5jaGVzdGVyIGNsaW1iaW5nWhUiE21hbmNoZXN0ZXIgY2xpbWJpbmeSARRyb2NrX2NsaW1iaW5nX2NlbnRyZZoBJENoZERTVWhOTUc5blMwVkpRMEZuU1VOcGNYRjZaRzlSUlJBQuABAA!16s%2Fg%2F113jvnw1g?entry=ttu', '?m ?m2'],
+                [53.4692365, -2.2039317, true, 'Parthian Climbing', 'https://www.google.com/maps/place/Parthian+Climbing/@53.4692365,-2.2039317,15z/data=!4m10!1m2!2m1!1sManchester+climbing!3m6!1s0x487bb170cfcfdcf9:0x42e68e10a84bcb27!8m2!3d53.469464!4d-2.204217!15sChNNYW5jaGVzdGVyIGNsaW1iaW5nWhUiE21hbmNoZXN0ZXIgY2xpbWJpbmeSARRyb2NrX2NsaW1iaW5nX2NlbnRyZZoBI0NoWkRTVWhOTUc5blMwVkpRMEZuU1VOMFp6UnhUbUpSRUFF4AEA!16s%2Fg%2F1v8k_4ky?entry=ttu', '?m ?m2'],
+                [48.6844975, 6.2032792, true, 'Bloc Session Nancy', 'https://www.google.com/maps/place/Bloc+Session+Nancy/@48.6844975,6.2032792,14z/data=!4m10!1m2!2m1!1snancy+climbing+hall!3m6!1s0x479499778d16fbeb:0x41d56ec246140d07!8m2!3d48.6843944!4d6.2027239!15sChNuYW5jeSBjbGltYmluZyBoYWxskgEUcm9ja19jbGltYmluZ19jZW50cmXgAQA!16s%2Fg%2F11spqs0lqn?entry=ttu', '?m ?m2'],
+                [52.3528372, 14.5505778, true, 'DAV Sektion Frankfurt (Oder)', 'https://www.google.com/maps/place/Deutscher+Alpenverein+Sektion+Frankfurt+(Oder)/@52.3528372,14.5505778,19.9z/data=!4m6!3m5!1s0x4707986524acc3b1:0x5c02cbce514c4d55!8m2!3d52.3529459!4d14.550721!16s%2Fg%2F11b6x8352n?entry=ttu', '?m ?m2']
+            ];
+    </script>
 
-<script type="text/javascript">
-    const 
-        RockCoords = [
-            [52.4996984, 13.2450807, false, 'Kletterturm Teufelsberg', 'https://www.google.com/maps/place/Kletterturm+Teufelsberg/@52.4996984,13.2377539,15z/data=!4m10!1m2!2m1!1sdav+teufelsberg!3m6!1s0x47a8573e5a399567:0x775ab208f81f8a18!8m2!3d52.4996984!4d13.2450807!15sCg9kYXYgdGV1ZmVsc2JlcmdaESIPZGF2IHRldWZlbHNiZXJnkgENcm9ja19jbGltYmluZ5oBJENoZERTVWhOTUc5blMwVkpRMEZuU1VRMGNsOXFiQzFSUlJBQuABAA!16s%2Fg%2F11cn66zmlx?entry=ttu'],
-            [52.5458157,13.3832708, false, 'Humboldtbunker Sportklettern', 'https://www.google.com/maps/place/Humboldtbunker+Sportklettern/@52.5458157,13.3832708,17z/data=!4m10!1m2!2m1!1sBunkerwand+Humboldthain!3m6!1s0x47a853ebec98eab9:0x470fe23883f6fb!8m2!3d52.5474578!4d13.3845327!15sChdCdW5rZXJ3YW5kIEh1bWJvbGR0aGFpbpIBDXJvY2tfY2xpbWJpbmfgAQA!16s%2Fg%2F11s34m1xyn?entry=ttu'],
-            [52.49586,13.3619374, false, 'Kletterturm Kirchbachspitze Fußballplatz', 'https://www.google.com/maps/place/Kletterturm+Kirchbachspitze+Fu%C3%9Fballplatz/@52.49586,13.3619374,17z/data=!4m10!1m2!2m1!1sKletterturm+Kirchbachspitze!3m6!1s0x47a85161a5bd105d:0xe604fe9d08c8f4de!8m2!3d52.4960375!4d13.3646583!15sChtLbGV0dGVydHVybSBLaXJjaGJhY2hzcGl0emWSAQxzb2NjZXJfZmllbGTgAQA!16s%2Fg%2F11h5njhjcz?entry=ttu'],
+    <script type="text/javascript">
+        const
+            RockCoords = [
+                [52.4996984, 13.2450807, false, 'Kletterturm Teufelsberg', 'https://www.google.com/maps/place/Kletterturm+Teufelsberg/@52.4996984,13.2377539,15z/data=!4m10!1m2!2m1!1sdav+teufelsberg!3m6!1s0x47a8573e5a399567:0x775ab208f81f8a18!8m2!3d52.4996984!4d13.2450807!15sCg9kYXYgdGV1ZmVsc2JlcmdaESIPZGF2IHRldWZlbHNiZXJnkgENcm9ja19jbGltYmluZ5oBJENoZERTVWhOTUc5blMwVkpRMEZuU1VRMGNsOXFiQzFSUlJBQuABAA!16s%2Fg%2F11cn66zmlx?entry=ttu'],
+                [52.5458157, 13.3832708, false, 'Humboldtbunker Sportklettern', 'https://www.google.com/maps/place/Humboldtbunker+Sportklettern/@52.5458157,13.3832708,17z/data=!4m10!1m2!2m1!1sBunkerwand+Humboldthain!3m6!1s0x47a853ebec98eab9:0x470fe23883f6fb!8m2!3d52.5474578!4d13.3845327!15sChdCdW5rZXJ3YW5kIEh1bWJvbGR0aGFpbpIBDXJvY2tfY2xpbWJpbmfgAQA!16s%2Fg%2F11s34m1xyn?entry=ttu'],
+                [52.49586, 13.3619374, false, 'Kletterturm Kirchbachspitze Fußballplatz', 'https://www.google.com/maps/place/Kletterturm+Kirchbachspitze+Fu%C3%9Fballplatz/@52.49586,13.3619374,17z/data=!4m10!1m2!2m1!1sKletterturm+Kirchbachspitze!3m6!1s0x47a85161a5bd105d:0xe604fe9d08c8f4de!8m2!3d52.4960375!4d13.3646583!15sChtLbGV0dGVydHVybSBLaXJjaGJhY2hzcGl0emWSAQxzb2NjZXJfZmllbGTgAQA!16s%2Fg%2F11h5njhjcz?entry=ttu'],
 
-            [52.5666028,13.5790308, false, 'Kletterturm Wuhletalwächter', 'https://www.google.com/maps/place/Kletterturm+Wuhletalw%C3%A4chter+des+AlpinClub+Berlin+(DAV)+e.V./@52.5666028,13.5790308,12.02z/data=!4m6!3m5!1s0x47a84b9f99b3b035:0x615ceb8a7dfbd311!8m2!3d52.563945!4d13.581628!16s%2Fg%2F120yl8bs?entry=ttu'],
-            [52.524464, 13.4313408, true, 'Climbing rock Friedrichshain park', 'https://www.google.com/maps/place/Climbing+rock+Friedrichshain+park/@52.524464,13.4313408,16.51z/data=!4m14!1m7!3m6!1s0x47a84e126b6e2efd:0xc281c457bba00f76!2sVolkspark+Friedrichshain!8m2!3d52.5280353!4d13.4363934!16s%2Fm%2F0bwh6yd!3m5!1s0x47a84e0d554b03ed:0x60fd1fb45ac75331!8m2!3d52.5280855!4d13.4412763!16s%2Fg%2F11bymw30zw?entry=ttu'],
+                [52.5666028, 13.5790308, false, 'Kletterturm Wuhletalwächter', 'https://www.google.com/maps/place/Kletterturm+Wuhletalw%C3%A4chter+des+AlpinClub+Berlin+(DAV)+e.V./@52.5666028,13.5790308,12.02z/data=!4m6!3m5!1s0x47a84b9f99b3b035:0x615ceb8a7dfbd311!8m2!3d52.563945!4d13.581628!16s%2Fg%2F120yl8bs?entry=ttu'],
+                [52.524464, 13.4313408, true, 'Climbing rock Friedrichshain park', 'https://www.google.com/maps/place/Climbing+rock+Friedrichshain+park/@52.524464,13.4313408,16.51z/data=!4m14!1m7!3m6!1s0x47a84e126b6e2efd:0xc281c457bba00f76!2sVolkspark+Friedrichshain!8m2!3d52.5280353!4d13.4363934!16s%2Fm%2F0bwh6yd!3m5!1s0x47a84e0d554b03ed:0x60fd1fb45ac75331!8m2!3d52.5280855!4d13.4412763!16s%2Fg%2F11bymw30zw?entry=ttu'],
 
-            [52.502000,13.450000, false, 'Stonehenge', 'https://www.kletterwiki.de/Stonehenge'],
-            [52.502192,13.449529, false, 'Stonehenge', 'https://www.thecrag.com/de/klettern/germany/berlin/area/968588793'],
+                [52.502000, 13.450000, false, 'Stonehenge', 'https://www.kletterwiki.de/Stonehenge'],
+                [52.502192, 13.449529, false, 'Stonehenge', 'https://www.thecrag.com/de/klettern/germany/berlin/area/968588793'],
 
-            [52.509433,13.214682, false, 'Stößenseebrücke', 'https://www.kletterwiki.de/St%C3%B6%C3%9Fenseebr%C3%BCcke'],
-            [52.544309,13.167456, false, 'Kletterturm Spandau', 'https://www.thecrag.com/de/klettern/germany/berlin/area/2979871044'],
-            [52.519978,13.467221, false, 'SE Block', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3290615649'],
-            [52.502793,13.505328, false, 'Fanta 4 - Sportstadion Friedrichsfelde', 'https://www.thecrag.com/de/klettern/germany/berlin/area/4604752269'],
-            [52.514336,13.525674, false, 'S-Bahn-Brücke Friedrichsfelde Ost', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3694940187'],
-            [52.550885,13.335744, false, 'Brücke Volkspark Rehberge' , 'https://www.thecrag.com/de/klettern/germany/berlin/area/3723845421'],
-            [52.426452,13.561733, false, 'Teltowkanal', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3188955447'],
-            [52.504170,13.566293, false, 'Obelisk, der Peiniger', 'https://www.thecrag.com/de/klettern/germany/berlin/area/8648995251'],
-            [52.543777,13.414901, false, 'Spielplatz Pappelallee', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3719572296'],
-            
-            [52.525423,13.154325, false, 'Spielplatz Cosmarweg', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3675458898'],
-            [52.5255565,13.1557001, false, 'Boulderwand am Cosmarweg', 'https://www.thecrag.com/climbing/germany/berlin/area/3675458898'],
+                [52.509433, 13.214682, false, 'Stößenseebrücke', 'https://www.kletterwiki.de/St%C3%B6%C3%9Fenseebr%C3%BCcke'],
+                [52.544309, 13.167456, false, 'Kletterturm Spandau', 'https://www.thecrag.com/de/klettern/germany/berlin/area/2979871044'],
+                [52.519978, 13.467221, false, 'SE Block', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3290615649'],
+                [52.502793, 13.505328, false, 'Fanta 4 - Sportstadion Friedrichsfelde', 'https://www.thecrag.com/de/klettern/germany/berlin/area/4604752269'],
+                [52.514336, 13.525674, false, 'S-Bahn-Brücke Friedrichsfelde Ost', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3694940187'],
+                [52.550885, 13.335744, false, 'Brücke Volkspark Rehberge', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3723845421'],
+                [52.426452, 13.561733, false, 'Teltowkanal', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3188955447'],
+                [52.504170, 13.566293, false, 'Obelisk, der Peiniger', 'https://www.thecrag.com/de/klettern/germany/berlin/area/8648995251'],
+                [52.543777, 13.414901, false, 'Spielplatz Pappelallee', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3719572296'],
 
-            [52.441446,13.385143, false, 'Ayers Rock', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3051355134'], //Fav
-            [52.438271,13.341993, false, 'Lankwitz Kletterfelsen', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3372450243'],
-            [52.541485,13.182368, false, 'Boulderwelle Spekteweg', 'https://www.thecrag.com/de/klettern/germany/berlin/area/2980992888'],
-            [52.524488,13.318897, false, 'Neues Ufer', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3695469222'],
-            [52.455067,13.449809, false, 'Kletterfels & Burg Buschkrug' ,'https://www.thecrag.com/de/klettern/germany/berlin/area/4753313484'],
-            [52.548840,13.399581, false, 'Schwedter Nordwand', 'https://www.thecrag.com/climbing/germany/berlin/area/233883189'],
+                [52.525423, 13.154325, false, 'Spielplatz Cosmarweg', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3675458898'],
+                [52.5255565, 13.1557001, false, 'Boulderwand am Cosmarweg', 'https://www.thecrag.com/climbing/germany/berlin/area/3675458898'],
 
-            //Brandenburg
-            [52.319453,14.035406, false, 'Markgrafensteine', 'https://www.thecrag.com/de/klettern/germany/area/233883636'],
-            [53.226539,13.421434, false, 'Owis Stein', 'https://www.thecrag.com/de/klettern/germany/area/3473500866'],
-            [52.893639,14.044964, false ,'Der Große Stein Oderberg-Neuendorf', 'https://www.thecrag.com/de/klettern/germany/area/4975093059'],            
-        ];
-</script>
+                [52.441446, 13.385143, false, 'Ayers Rock', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3051355134'], //Fav
+                [52.438271, 13.341993, false, 'Lankwitz Kletterfelsen', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3372450243'],
+                [52.541485, 13.182368, false, 'Boulderwelle Spekteweg', 'https://www.thecrag.com/de/klettern/germany/berlin/area/2980992888'],
+                [52.524488, 13.318897, false, 'Neues Ufer', 'https://www.thecrag.com/de/klettern/germany/berlin/area/3695469222'],
+                [52.455067, 13.449809, false, 'Kletterfels & Burg Buschkrug', 'https://www.thecrag.com/de/klettern/germany/berlin/area/4753313484'],
+                [52.548840, 13.399581, false, 'Schwedter Nordwand', 'https://www.thecrag.com/climbing/germany/berlin/area/233883189'],
 
-
-<script>
-    let map = L.map('map', {
-        zoom: 11,
-        //minZoom:9,
-        center: new L.latLng([52.49051563143775, 13.40160369873047]),
-        layers: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-        layers: [
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            })
-        ]
-    });
-
-    let 
-        hallLayer = new L.FeatureGroup(),
-        rockLayer =  new L.FeatureGroup();
+                //Brandenburg
+                [52.319453, 14.035406, false, 'Markgrafensteine', 'https://www.thecrag.com/de/klettern/germany/area/233883636'],
+                [53.226539, 13.421434, false, 'Owis Stein', 'https://www.thecrag.com/de/klettern/germany/area/3473500866'],
+                [52.893639, 14.044964, false, 'Der Große Stein Oderberg-Neuendorf', 'https://www.thecrag.com/de/klettern/germany/area/4975093059'],
+            ];
+    </script>
 
 
-    const
-        HallIconSetting = {
-            mapIconUrl: '<svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149 178"><path fill="{mapIconColor}" stroke="#FFF" stroke-width="6" stroke-miterlimit="10" d="M126 23l-6-6A69 69 0 0 0 74 1a69 69 0 0 0-51 22A70 70 0 0 0 1 74c0 21 7 38 22 52l43 47c6 6 11 6 16 0l48-51c12-13 18-29 18-48 0-20-8-37-22-51z"/><circle fill="{mapIconColorInnerCircle}" cx="74" cy="75" r="61"/><circle fill="#FFF" cx="74" cy="75" r="{pinInnerCircleRadius}"/></svg>',
-            mapIconUrl: `<?xml version="1.0" encoding="UTF-8"?>
+    <script>
+        let map = L.map('map', {
+            zoom: 11,
+            //minZoom:9,
+            center: new L.latLng([52.49051563143775, 13.40160369873047]),
+            layers: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+            layers: [
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                })
+            ]
+        });
+
+        let
+            hallLayer = new L.FeatureGroup(),
+            rockLayer = new L.FeatureGroup();
+
+
+        const
+            HallIconSetting = {
+                mapIconUrl: '<svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149 178"><path fill="{mapIconColor}" stroke="#FFF" stroke-width="6" stroke-miterlimit="10" d="M126 23l-6-6A69 69 0 0 0 74 1a69 69 0 0 0-51 22A70 70 0 0 0 1 74c0 21 7 38 22 52l43 47c6 6 11 6 16 0l48-51c12-13 18-29 18-48 0-20-8-37-22-51z"/><circle fill="{mapIconColorInnerCircle}" cx="74" cy="75" r="61"/><circle fill="#FFF" cx="74" cy="75" r="{pinInnerCircleRadius}"/></svg>',
+                mapIconUrl: `<?xml version="1.0" encoding="UTF-8"?>
     <svg width="32px" height="32px" version="1.1" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
      <circle fill="{mapIconColorInnerCircle}" cx="600" cy="600" r="300"/><circle fill="#FFF" cx="600" cy="600" r="600"/>
       <g fill="{color}">
@@ -176,48 +198,59 @@ html, body,
       <path d="m678.91 1200v-397.66l-37.293 17.461v380.2z"/>
      </g>
     </svg>`,
-            mapIconColor: '#cc756b',
-            mapIconColorInnerCircle: '#fff',
-            pinInnerCircleRadius: 600,
-            color: '#bf212f'
-        },
-        hallIcon = [
-            L.divIcon({
-                className: "leaflet-data-marker",
-                html: L.Util.template(HallIconSetting.mapIconUrl, HallIconSetting),
-                iconAnchor: [12, 32],
-                iconSize: [25, 30],
-                popupAnchor: [0, -28]
-            }), 
-            L.divIcon({
-                className: "leaflet-data-marker",
-                html: L.Util.template(HallIconSetting.mapIconUrl, {...HallIconSetting, ...{color: '#006f3c'}}),
-                iconAnchor: [12, 32],
-                iconSize: [25, 30],
-                popupAnchor: [0, -28]
-            })
-        ];
+                mapIconColor: '#cc756b',
+                mapIconColorInnerCircle: '#fff',
+                pinInnerCircleRadius: 600,
+                color: '#bf212f'
+            },
+            hallIcon = [
+                L.divIcon({
+                    className: "leaflet-data-marker",
+                    html: L.Util.template(HallIconSetting.mapIconUrl, HallIconSetting),
+                    iconAnchor: [12, 32],
+                    iconSize: [25, 30],
+                    popupAnchor: [0, -28]
+                }),
+                L.divIcon({
+                    className: "leaflet-data-marker",
+                    html: L.Util.template(HallIconSetting.mapIconUrl, { ...HallIconSetting, ...{ color: '#006f3c' } }),
+                    iconAnchor: [12, 32],
+                    iconSize: [25, 30],
+                    popupAnchor: [0, -28]
+                })
+            ];
 
 
-    HallCoords.forEach((coord, idx) => {
-        let 
-            marker = L.marker([coord[0], coord[1]], {
-                icon: hallIcon[ coord[2] ? 1 : 0 ]
-            })
-            .bindPopup(`<a href="${coord[4]}" target="_blank">${coord[3]}</a>`);
-        
-        hallLayer.addLayer(marker);
+        const proposal = new URLSearchParams(window.location.search).get('proposal');
+        const hasProposal = !!proposal;
+        HallCoords.forEach((coord, idx) => {
+            const isProposed = hasProposal && proposal === `hall-${idx}`;
+            if (isProposed) {
+                document.querySelector(".proposal-box").innerHTML = `I propose ${coord[3]}`;
+            }
+            let
+                marker = L.marker([coord[0], coord[1]], {
+                    icon: hallIcon[coord[2] ? 1 : 0]
+                })
+                    .setOpacity(hasProposal ? (isProposed ? 1 : 0.2) : 1)
+                    .bindPopup(`
+                        <a href="${coord[4]}" target="_blank">${coord[3]}</a>
+                        <br />
+                        <a href="?proposal=hall-${idx}">Propose</a>
+                    `);
 
-    })
+            hallLayer.addLayer(marker);
 
-    hallLayer.addTo(map);
+        })
+
+        hallLayer.addTo(map);
 
 
- 
 
-    const
-        RockIconSetting = {
-            mapIconUrl: `
+
+        const
+            RockIconSetting = {
+                mapIconUrl: `
             <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="32px" height="32px" 
    xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -272,67 +305,74 @@ html, body,
          id="path909"
          d="M 42.824219 1.9667969 C 42.597219 7.1047969 44.907687 3.2743281 46.179688 5.8613281 C 47.607687 8.7683281 45.926125 17.263484 48.328125 19.771484 C 54.088125 25.781484 60.154594 22.026344 64.683594 22.277344 C 50.369594 23.415344 63.452438 29.038859 57.773438 32.005859 C 54.090438 33.928859 59.766297 56.391016 61.779297 64.666016 C 63.792297 72.941016 72.398438 74.285156 72.398438 74.285156 C 72.398438 74.285156 63.314422 74.814094 62.982422 79.996094 C 62.649422 85.178094 63.034141 82.031422 65.494141 92.607422 C 65.848211 94.129972 66.125082 95.234913 66.369141 96.181641 A 50 50 0 0 0 100.49023 48.771484 A 50 50 0 0 0 68.076172 1.9667969 L 42.824219 1.9667969 z "
          transform="translate(-8.5020093,-1.9662192)" /></g></g></svg>`,
-            mapIconColor: '#cc756b',
-            mapIconColorInnerCircle: '#fff',
-            pinInnerCircleRadius: 600,
-            color: '#bf212f'
-        },
-        rockIcon = [
-            L.divIcon({
-                className: "leaflet-data-marker",
-                html: L.Util.template(RockIconSetting.mapIconUrl, RockIconSetting),
-                iconAnchor: [12, 32],
-                iconSize: [25, 30],
-                popupAnchor: [0, -28]
-            }),
-            L.divIcon({
-                className: "leaflet-data-marker",
-                html: L.Util.template(RockIconSetting.mapIconUrl, {...RockIconSetting, ...{color: '#006f3c'}}),
-                iconAnchor: [12, 32],
-                iconSize: [25, 30],
-                popupAnchor: [0, -28]
-            })            
-        ];
+                mapIconColor: '#cc756b',
+                mapIconColorInnerCircle: '#fff',
+                pinInnerCircleRadius: 600,
+                color: '#bf212f'
+            },
+            rockIcon = [
+                L.divIcon({
+                    className: "leaflet-data-marker",
+                    html: L.Util.template(RockIconSetting.mapIconUrl, RockIconSetting),
+                    iconAnchor: [12, 32],
+                    iconSize: [25, 30],
+                    popupAnchor: [0, -28]
+                }),
+                L.divIcon({
+                    className: "leaflet-data-marker",
+                    html: L.Util.template(RockIconSetting.mapIconUrl, { ...RockIconSetting, ...{ color: '#006f3c' } }),
+                    iconAnchor: [12, 32],
+                    iconSize: [25, 30],
+                    popupAnchor: [0, -28]
+                })
+            ];
+
+        RockCoords.forEach((coord, idx) => {
+            const isProposed = hasProposal && proposal === `rock-${idx}`;
+            if (isProposed) {
+                document.querySelector(".proposal-box").innerHTML = `I propose ${coord[3]}`;
+            }
+            let
+                marker = L.marker([coord[0], coord[1]], {
+                    icon: rockIcon[coord[2] ? 1 : 0]
+                })
+                    .setOpacity(hasProposal ? (isProposed ? 1 : 0.2) : 1)
+                    .bindPopup(`
+                        <a href="${coord[4]}" target="_blank">${coord[3]}</a>
+                        <br />
+                        <a href="?proposal=rock-${idx}">Propose</a>
+                    `);
+
+            rockLayer.addLayer(marker);
+
+        })
+
+        rockLayer.addTo(map);
 
 
-    RockCoords.forEach((coord, idx) => {
-        let 
-            marker = L.marker([coord[0], coord[1]], {
-                icon: rockIcon[ coord[2] ? 1 : 0 ]
-            })
-            .bindPopup(`<a href="${coord[4]}" target="_blank">${coord[3]}</a>`);
-        
-        rockLayer.addLayer(marker);
+        document.getElementById('toggle').addEventListener('change', (ev) => {
+            let value = ev.target.checked;
 
-    })
+            const
+                NameToLayer = {
+                    "group_a": rockLayer,
+                    "group_b": hallLayer
+                };
 
-    rockLayer.addTo(map);
-    
+            let layer = NameToLayer[ev.target.id];
+            if (!layer) {
+                return;
+            }
 
-document.getElementById('toggle').addEventListener('change', (ev) => {
-    let value = ev.target.checked;
-
-    const
-        NameToLayer = {
-            "group_a": rockLayer,
-            "group_b": hallLayer
-        };
-
-    let layer = NameToLayer[ev.target.id];
-    if(!layer) {
-        return;
-    }
-
-    if(value) {
-        if(!map.hasLayer(layer)) {
-            layer.addTo(map)
-        }
-    } else {
-        map.removeLayer(layer)
-    }
-})
+            if (value) {
+                if (!map.hasLayer(layer)) {
+                    layer.addTo(map)
+                }
+            } else {
+                map.removeLayer(layer)
+            }
+        })
 
 
-</script>
-
+    </script>
 </body>
